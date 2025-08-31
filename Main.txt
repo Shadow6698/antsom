@@ -1,130 +1,27 @@
--- ServerScriptService - AntiExploitAudio
--- Bloqueia áudios não pertencentes ao Brookhaven (rbxassetid:// não autorizados)
--- Sistema balanceado: eficaz contra exploits sem lag no personagem
+-- Script tela preta com mensagem
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Criar ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackScreen"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
--- Lista branca (whitelist) de IDs de áudio permitidos do Brookhaven
-local allowedAudioIDs = {
-    -- Exemplo: Adicione IDs de áudios legítimos do Brookhaven aqui
-    -- 123456789, -- Exemplo de ID de áudio permitido
-    -- 987654321,
-}
+-- Fundo preto
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1,0,1,0)
+frame.Position = UDim2.new(0,0,0,0)
+frame.BackgroundColor3 = Color3.new(0,0,0)
+frame.Parent = screenGui
 
--- Função para verificar se o áudio é permitido
-local function isAllowedAudio(soundId)
-    if not soundId or soundId == "" then return true end
-    local id = tonumber(soundId:match("%d+"))
-    return id and table.find(allowedAudioIDs, id) or false
-end
-
--- Função otimizada para destruir som
-local function destroySound(sound)
-    if sound and sound.Parent then
-        sound:Stop()
-        sound.Volume = 0
-        sound.SoundId = ""
-        sound:Destroy()
-    end
-end
-
--- Detecção instantânea (mais eficiente)
-workspace.DescendantAdded:Connect(function(descendant)
-    if descendant:IsA("Sound") then
-        -- Verifica imediatamente
-        if not isAllowedAudio(descendant.SoundId) then
-            print("🔇 Som não autorizado bloqueado: " .. (descendant.SoundId or "Sem ID"))
-            destroySound(descendant)
-            return
-        end
-        
-        -- Monitora mudanças apenas se necessário
-        local connection
-        connection = descendant:GetPropertyChangedSignal("SoundId"):Connect(function()
-            if not isAllowedAudio(descendant.SoundId) then
-                print("🔇 SoundId alterado - bloqueado: " .. (descendant.SoundId or "Sem ID"))
-                destroySound(descendant)
-                if connection then connection:Disconnect() end
-            end
-        end)
-        
-        -- Limpa conexão quando som for destruído
-        descendant.AncestryChanged:Connect(function()
-            if not descendant.Parent and connection then
-                connection:Disconnect()
-            end
-        end)
-    end
-end)
-
--- Sistema de limpeza MUITO mais leve (reduzido drasticamente)
-local lastCleanup = 0
-local CLEANUP_INTERVAL = 2 -- A cada 2 segundos apenas
-
-spawn(function()
-    while true do
-        local currentTime = tick()
-        if currentTime - lastCleanup >= CLEANUP_INTERVAL then
-            lastCleanup = currentTime
-            
-            -- Processa apenas 10 objetos por vez para evitar lag
-            local allSounds = {}
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("Sound") then
-                    table.insert(allSounds, obj)
-                    if #allSounds >= 10 then break end -- Limita a 10 por verificação
-                end
-            end
-            
-            for _, sound in ipairs(allSounds) do
-                if not isAllowedAudio(sound.SoundId) then
-                    print("🔇 Limpeza: " .. (sound.SoundId or "Sem ID"))
-                    destroySound(sound)
-                end
-            end
-        end
-        
-        wait(0.5) -- Espera meio segundo entre verificações
-    end
-end)
-
--- Proteção básica contra pastas suspeitas (sem loop pesado)
-workspace.ChildAdded:Connect(function(child)
-    if child:IsA("Folder") and child.Name == "Audio all client" then
-        print("🔒 Pasta suspeita destruída: " .. child.Name)
-        child:Destroy()
-    end
-end)
-
--- Proteção de eventos remotos (executa só quando necessário)
-local protectedEvents = {}
-local function protectRemoteEvent(remoteEvent)
-    if protectedEvents[remoteEvent] then return end
-    
-    protectedEvents[remoteEvent] = true
-    print("🔒 Evento remoto protegido: " .. remoteEvent.Name)
-    
-    remoteEvent.OnServerEvent:Connect(function(player, parent, audioId, volume)
-        if audioId and not isAllowedAudio(tostring(audioId)) then
-            print("🚫 " .. player.Name .. " bloqueado: " .. tostring(audioId))
-            return -- Bloqueia
-        end
-    end)
-end
-
--- Monitora eventos suspeitos apenas quando criados
-ReplicatedStorage.DescendantAdded:Connect(function(descendant)
-    if descendant:IsA("RemoteEvent") and descendant.Name == "1Gu1nSound1s" then
-        task.wait(0.1)
-        protectRemoteEvent(descendant)
-    end
-end)
-
--- Proteção inicial
-local existingEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
-if existingEvent then
-    protectRemoteEvent(existingEvent)
-end
-
-print("🚀 AntiExploit Audio BALANCEADO iniciado - Sem lag no personagem!")
+-- Texto centralizado
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.new(1,0,1,0)
+textLabel.BackgroundTransparency = 1
+textLabel.Text = "GO SKID FROM YOUR MOM, STUPID FOREIGNER"
+textLabel.TextColor3 = Color3.new(1,1,1)
+textLabel.TextScaled = true
+textLabel.Font = Enum.Font.GothamBold
+textLabel.Parent = frame
