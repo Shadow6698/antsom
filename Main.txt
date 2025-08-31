@@ -2,38 +2,51 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
 
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 local char = player.Character or player.CharacterAdded:Wait()
 local humanoid = char:WaitForChild("Humanoid")
 local hrp = char:WaitForChild("HumanoidRootPart")
 
--- GUI principal
+-- GUI principal (vai em CoreGui pra tampar até o chat)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "BlackScreenTroll"
-screenGui.ResetOnSpawn = false
+screenGui.Name = "FullBlackScreenTroll"
 screenGui.IgnoreGuiInset = true
-screenGui.Parent = playerGui
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
 
--- Fundo preto cobrindo tudo
+-- Fundo preto gigante
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(5,0,5,0) -- maior que a tela, pra garantir
+frame.Size = UDim2.new(5,0,5,0) -- muito maior que tela
 frame.Position = UDim2.new(-2,0,-2,0)
 frame.BackgroundColor3 = Color3.new(0,0,0)
+frame.ZIndex = 10
 frame.Parent = screenGui
 
--- Mensagens espalhadas cobrindo tudo
-for i = 1, 100 do
+-- Mensagem central gigante
+local mainMsg = Instance.new("TextLabel")
+mainMsg.Size = UDim2.new(1,0,1,0)
+mainMsg.BackgroundTransparency = 1
+mainMsg.Text = "GO SKID FROM YOUR MOM, STUPID FOREIGNER"
+mainMsg.TextColor3 = Color3.new(1,0,0)
+mainMsg.TextScaled = true
+mainMsg.Font = Enum.Font.GothamBlack
+mainMsg.ZIndex = 20
+mainMsg.Parent = frame
+
+-- Frases espalhadas pela tela
+for i = 1, 80 do
     local msg = Instance.new("TextLabel")
-    msg.Size = UDim2.new(0, math.random(200,400), 0, math.random(50,150))
+    msg.Size = UDim2.new(0, math.random(200,400), 0, math.random(50,120))
     msg.Position = UDim2.new(math.random(), 0, math.random(), 0)
     msg.BackgroundTransparency = 1
     msg.Text = "GO SKID FROM YOUR MOM, STUPID FOREIGNER"
     msg.TextColor3 = Color3.new(1,1,1)
     msg.TextScaled = true
-    msg.Font = Enum.Font.GothamBlack
-    msg.Rotation = math.random(-30,30)
+    msg.Font = Enum.Font.GothamBold
+    msg.Rotation = math.random(-20,20)
+    msg.ZIndex = 15
     msg.Parent = frame
 end
 
@@ -41,7 +54,7 @@ end
 humanoid.WalkSpeed = 0
 humanoid.JumpPower = 0
 
--- Bug da câmera e movimento sozinho
+-- Bugar câmera e personagem
 local cam = workspace.CurrentCamera
 RunService.RenderStepped:Connect(function()
     -- câmera tremendo
@@ -50,10 +63,10 @@ RunService.RenderStepped:Connect(function()
         math.rad(math.random(-2,2)), 
         0
     )
-    -- mexer o player sozinho
+    -- mexer player sozinho
     hrp.CFrame = hrp.CFrame * CFrame.new(
-        math.random(-1,1) * 0.3, 
+        math.random(-1,1) * 0.25, 
         0, 
-        math.random(-1,1) * 0.3
+        math.random(-1,1) * 0.25
     )
 end)
